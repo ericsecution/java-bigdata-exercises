@@ -60,7 +60,7 @@ public class Student {
                 ", name='" + name + '\'' +
                 ", age=" + age +
                 ", email='" + email + '\'' +
-                ", course=" + course + '\'' +
+                ", course='" + course + '\'' +
                 '}';
     }
 

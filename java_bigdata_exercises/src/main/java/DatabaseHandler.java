@@ -71,14 +71,22 @@ public class DatabaseHandler {
                 students.add(new Student(id, name, age, email, course));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLSyntaxErrorException) {
+                System.out.println("Error: There is a syntax error in the SQL query.");
+            } else if (e instanceof SQLDataException) {
+                System.out.println("Error: Invalid data format.");
+            } else {
+                System.out.println("An error occurred while retrieving the students.");
+            }
         }
+
         return students;
     }
 
     // Update (from CRUD) command
     public void updateStudent(int id, String name, int age, String email, String course) {
         String query = "UPDATE students SET name = ?, age = ?, email = ?, course = ? WHERE id = ?";
+        // 'try' to update using a PreparedStatement
         try {
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, name);
@@ -86,9 +94,24 @@ public class DatabaseHandler {
             pstmt.setString(3, email);
             pstmt.setString(4, course);
             pstmt.setInt(5, id);
-            pstmt.executeUpdate();
+
+            // Check the Rows to see if the UPDATE changed anything
+            int checkRows = pstmt.executeUpdate();
+            // if not, I know that the ID doesn't exist (possibly bc it was Deleted prior)
+            if (checkRows == 0) {
+                // and I can notify whoever's working with the code in the future
+                System.out.println("No Student found with ID #" + id);
+            } // otherwise, run through exceptions
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                System.out.println("Error: Unable to update student. " +
+                        "Please ensure the student ID is correct.");
+            } else if (e instanceof SQLDataException) {
+                System.out.println("Error: Invalid data format.");
+            } else {
+                System.out.println("An error occurred while updating the student.");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -98,9 +121,23 @@ public class DatabaseHandler {
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, newEmail);
             pstmt.setInt(2, id);
-            pstmt.executeUpdate();
+            // Check the Rows to see if the UPDATE changed anything
+            int checkRows = pstmt.executeUpdate();
+            // if not, I know that the ID doesn't exist (possibly bc it was Deleted prior)
+            if (checkRows == 0) {
+                // and I can notify whoever's working with the code in the future
+                System.out.println("No Student found with ID #" + id);
+            } // otherwise, run through exceptions
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                System.out.println("Error: Unable to update student. " +
+                        "Please ensure the student ID is correct.");
+            } else if (e instanceof SQLDataException) {
+                System.out.println("Error: Invalid data format.");
+            } else {
+                System.out.println("An error occurred while updating the student.");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -110,9 +147,22 @@ public class DatabaseHandler {
         try {
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, id);
-            pstmt.executeUpdate();
+            int checkRows = pstmt.executeUpdate();
+            if (checkRows == 0) {
+                System.out.println("No Student was Deleted at ID #" + id + ". " +
+                        "Check your ID #, and first make sure a "+
+                        "Student with that ID exists to Delete.");
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                System.out.println("Error: Unable to delete student. " +
+                        "Please ensure the student ID is correct");
+            } else if (e instanceof SQLDataException) {
+                System.out.println("Error: Invalid data format.");
+            } else {
+                System.out.println("An error occurred while deleting the student.");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -121,19 +171,61 @@ public class DatabaseHandler {
         DatabaseHandler dbHandler = new DatabaseHandler();
         dbHandler.connect();
         // comment this out for now, to prevent addt'l 'John Doe's until code amended
-//      dbHandler.addStudent("John Doe", 22, "john.doe@example.com", "Computer Science");
+        dbHandler.addStudent("Johnny Eight", 36,
+                "jgone@goodbye.com", "Johnny Gonny");
+//      dbHandler.addStudent("Eric Apple", 32, "eric.apple@phonefruit.com", "Computer Science");
 
-        dbHandler.updateStudent(1, "John Doe", 22, "john.doe@example.com", "Data Science");
-        dbHandler.updateStudentEmail(2, "new.email@example.com");
-
-        // commented out for now, so Students don't continually get deleted.
-//        dbHandler.deleteStudent(1);
-
+        // Post 'addStudent()' method and/or the Database as it currently stands
+        System.out.println("==================");
+        System.out.println("====  START  ====");
+        System.out.println("** List of Current Students in Database **");
         List<Student> students = dbHandler.getStudents();
         for (Student student : students) {
             System.out.println(student);
         }
+        System.out.println("==============");
+        System.out.println();
 
+        // Calling / Checking the 'updateStudent()' method
+        dbHandler.updateStudent(2, "Johnny Disco, Sr., Jr", 77,
+                "john.e.d.sr.jr@example.com", "Abacuses");
+        System.out.println("==============");
+        System.out.println("** List of Current Students--post-UPDATE--in Database **");
+        students = dbHandler.getStudents();
+        for (Student student : students) {
+            System.out.println(student);
+        }
+        System.out.println("==============");
+        System.out.println();
+
+        // Calling / Checking the 'updateStudent()' method
+        // Calling it again but with a dif / non-existing ID.
+        dbHandler.updateStudent(4, "Marge Simpson", 53,
+                "marge@thesimpsons.com", "Meet The Simpsons");
+        System.out.println("==============");
+        System.out.println("** List of Current Students--post-UPDATE #2--in Database **");
+        students = dbHandler.getStudents();
+        for (Student student : students) {
+            System.out.println(student);
+        }
+        System.out.println("=================");
+        System.out.println();
+
+        dbHandler.updateStudentEmail(3, "updateUser3_again@morenewemails.com");
+
+        // commented out for now, so Students don't continually get deleted.
+        dbHandler.deleteStudent(8);
+
+        System.out.println("==============");
+        System.out.println("** List of Current Students after Updating "
+                + "a Student's Email &/or Deleting a Student **");
+        students = dbHandler.getStudents();
+        for (Student student : students) {
+            System.out.println(student);
+        }
+        System.out.println("=================");
+        System.out.println("==== THE END ====");
+        System.out.println();
     }
 
 }
