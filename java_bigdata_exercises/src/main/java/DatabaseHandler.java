@@ -2,8 +2,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DatabaseHandler {
+    private static final Logger logger = LogManager.getLogger(DatabaseHandler.class);
     private Connection conn;
 
     public void connect() {
@@ -42,14 +45,14 @@ public class DatabaseHandler {
             pstmt.setString(3, email);
             pstmt.setString(4, course);
             pstmt.executeUpdate();
+            logger.info("Successfully added a new student: " + name);
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
-                System.out.println("Error: A student with the same ID already exists.");
+                logger.error("Error: A student with the same ID already exists.");
             } else if (e instanceof SQLDataException) {
-                System.out.println("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.");
             } else {
-                System.out.println("An error occurred while adding the student.");
-                e.printStackTrace();
+                logger.error("An error occurred while adding the student.");
             }
         }
     }
@@ -72,11 +75,11 @@ public class DatabaseHandler {
             }
         } catch (SQLException e) {
             if (e instanceof SQLSyntaxErrorException) {
-                System.out.println("Error: There is a syntax error in the SQL query.");
+                logger.error("Error: There is a syntax error in the SQL query.");
             } else if (e instanceof SQLDataException) {
-                System.out.println("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.");
             } else {
-                System.out.println("An error occurred while retrieving the students.");
+                logger.error("An error occurred while retrieving the students.");
             }
         }
 
@@ -100,17 +103,16 @@ public class DatabaseHandler {
             // if not, I know that the ID doesn't exist (possibly bc it was Deleted prior)
             if (checkRows == 0) {
                 // and I can notify whoever's working with the code in the future
-                System.out.println("No Student found with ID #" + id);
+                logger.info("No Student found with ID #" + id);
             } // otherwise, run through exceptions
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
-                System.out.println("Error: Unable to update student. " +
+                logger.error("Error: Unable to update student. " +
                         "Please ensure the student ID is correct.");
             } else if (e instanceof SQLDataException) {
-                System.out.println("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.");
             } else {
-                System.out.println("An error occurred while updating the student.");
-                e.printStackTrace();
+                logger.error("An error occurred while updating the student.");
             }
         }
     }
@@ -126,17 +128,16 @@ public class DatabaseHandler {
             // if not, I know that the ID doesn't exist (possibly bc it was Deleted prior)
             if (checkRows == 0) {
                 // and I can notify whoever's working with the code in the future
-                System.out.println("No Student found with ID #" + id);
+                logger.info("No Student found with ID #" + id);
             } // otherwise, run through exceptions
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
-                System.out.println("Error: Unable to update student. " +
+                logger.error("Error: Unable to update student. " +
                         "Please ensure the student ID is correct.");
             } else if (e instanceof SQLDataException) {
-                System.out.println("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.");
             } else {
-                System.out.println("An error occurred while updating the student.");
-                e.printStackTrace();
+                logger.error("An error occurred while updating the student.");
             }
         }
     }
@@ -149,19 +150,18 @@ public class DatabaseHandler {
             pstmt.setInt(1, id);
             int checkRows = pstmt.executeUpdate();
             if (checkRows == 0) {
-                System.out.println("No Student was Deleted at ID #" + id + ". " +
+                logger.info("No Student was Deleted at ID #" + id + ". " +
                         "Check your ID #, and first make sure a "+
                         "Student with that ID exists to Delete.");
             }
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
-                System.out.println("Error: Unable to delete student. " +
-                        "Please ensure the student ID is correct");
+                logger.error("Error: Unable to delete student. " +
+                        "Please ensure the student ID is correct", e);
             } else if (e instanceof SQLDataException) {
-                System.out.println("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.", e);
             } else {
-                System.out.println("An error occurred while deleting the student.");
-                e.printStackTrace();
+                logger.error("An error occurred while deleting the student.", e);
             }
         }
     }
