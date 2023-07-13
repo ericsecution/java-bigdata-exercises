@@ -48,11 +48,11 @@ public class DatabaseHandler {
             logger.info("Successfully added a new student: " + name);
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
-                logger.error("Error: A student with the same ID already exists.");
+                logger.error("Error: A student with the same ID already exists.", e);
             } else if (e instanceof SQLDataException) {
-                logger.error("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.", e);
             } else {
-                logger.error("An error occurred while adding the student.");
+                logger.error("An error occurred while adding the student.", e);
             }
         }
     }
@@ -75,11 +75,11 @@ public class DatabaseHandler {
             }
         } catch (SQLException e) {
             if (e instanceof SQLSyntaxErrorException) {
-                logger.error("Error: There is a syntax error in the SQL query.");
+                logger.error("Error: There is a syntax error in the SQL query.", e);
             } else if (e instanceof SQLDataException) {
-                logger.error("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.", e);
             } else {
-                logger.error("An error occurred while retrieving the students.");
+                logger.error("An error occurred while retrieving the students.", e);
             }
         }
 
@@ -108,11 +108,11 @@ public class DatabaseHandler {
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
                 logger.error("Error: Unable to update student. " +
-                        "Please ensure the student ID is correct.");
+                        "Please ensure the student ID is correct.", e);
             } else if (e instanceof SQLDataException) {
-                logger.error("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.", e);
             } else {
-                logger.error("An error occurred while updating the student.");
+                logger.error("An error occurred while updating the student.", e);
             }
         }
     }
@@ -133,11 +133,11 @@ public class DatabaseHandler {
         } catch (SQLException e) {
             if (e instanceof SQLIntegrityConstraintViolationException) {
                 logger.error("Error: Unable to update student. " +
-                        "Please ensure the student ID is correct.");
+                        "Please ensure the student ID is correct.", e);
             } else if (e instanceof SQLDataException) {
-                logger.error("Error: Invalid data format.");
+                logger.error("Error: Invalid data format.", e);
             } else {
-                logger.error("An error occurred while updating the student.");
+                logger.error("An error occurred while updating the student.", e);
             }
         }
     }
@@ -171,8 +171,8 @@ public class DatabaseHandler {
         DatabaseHandler dbHandler = new DatabaseHandler();
         dbHandler.connect();
         // comment this out for now, to prevent addt'l 'John Doe's until code amended
-        dbHandler.addStudent("Johnny Eight", 36,
-                "jgone@goodbye.com", "Johnny Gonny");
+//        dbHandler.addStudent("Johnny Eight", 36,
+//                "jgone@goodbye.com", "Johnny Gonny");
 //      dbHandler.addStudent("Eric Apple", 32, "eric.apple@phonefruit.com", "Computer Science");
 
         // Post 'addStudent()' method and/or the Database as it currently stands
@@ -187,8 +187,8 @@ public class DatabaseHandler {
         System.out.println();
 
         // Calling / Checking the 'updateStudent()' method
-        dbHandler.updateStudent(2, "Johnny Disco, Sr., Jr", 77,
-                "john.e.d.sr.jr@example.com", "Abacuses");
+        dbHandler.updateStudent(7, "Jeanluc Hewlitt Packard", 42,
+                "newguy1@notarealemail.com", "Shipwide Analytics");
         System.out.println("==============");
         System.out.println("** List of Current Students--post-UPDATE--in Database **");
         students = dbHandler.getStudents();
@@ -200,22 +200,19 @@ public class DatabaseHandler {
 
         // Calling / Checking the 'updateStudent()' method
         // Calling it again but with a dif / non-existing ID.
-        dbHandler.updateStudent(4, "Marge Simpson", 53,
-                "marge@thesimpsons.com", "Meet The Simpsons");
+        dbHandler.updateStudent(3, "Hunter Shazam", 28,
+                "hunters@themoviesemailsys.com", "Superhero Survival Skills");
         System.out.println("==============");
         System.out.println("** List of Current Students--post-UPDATE #2--in Database **");
         students = dbHandler.getStudents();
         for (Student student : students) {
             System.out.println(student);
         }
-        System.out.println("=================");
         System.out.println();
-
-        dbHandler.updateStudentEmail(3, "updateUser3_again@morenewemails.com");
+        dbHandler.updateStudentEmail(6, "jDynasty1@morenewemails.com");
 
         // commented out for now, so Students don't continually get deleted.
-        dbHandler.deleteStudent(8);
-
+//        dbHandler.deleteStudent(8);
         System.out.println("==============");
         System.out.println("** List of Current Students after Updating "
                 + "a Student's Email &/or Deleting a Student **");
