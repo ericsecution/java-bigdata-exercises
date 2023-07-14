@@ -6,13 +6,60 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 public class StudentDao {
 
-    public boolean isDatabaseEmpty() {
-        return true;
-    }
     private static final Logger logger = LogManager.getLogger(StudentDao.class);
+
+    public boolean isDatabaseEmpty() {
+        // create the query using the case-insensitive HQL (Hibernate Query Language), ftw
+        // Adding some extra notes to remind myself of how HQL works
+
+        // initialize my transaction obj and my isEmpty variable
+        Transaction transaction = null;
+        boolean isEmpty = true;
+
+
+        // Sessions are lightweight and can be opened and closed throughout.
+        // The SessionFactory is thread-safe and usually application-scoped, s
+        // there's only a need to call to the Hibernate utility class one time.
+
+        // Opening up the conversation with a try/catch btwn my App and the "persistent store"
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            // aka the database. I'm creating a short-lived session object, in order to...
+
+            // create a query object, in order to retrieve a persistent object from the db
+            // testing out the case-insensitivity of HQL to make query easier to read.
+            Query<Long> query = session.createQuery("select count(s.id) from Student s",
+                    Long.class);
+
+            // execute query, get our single-value result
+            Long count = query.uniqueResult();
+
+            // check if count < 0
+            if (count < 0) {
+                isEmpty = false;
+            }
+
+            // as a good practice, including 'commit' & 'rollback'
+            // (even though obv no changes made)
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            // log the error
+            logger.error
+                    ("An error occurred while trying " +
+                            "to check if the database is empty.", e);
+        }
+          // return the true or false result
+        return isEmpty;
+    } // close isDatabaseEmpty() method
+
+
     public void saveStudent(Student student) {
         Session session = null;
         Transaction transaction = null;
