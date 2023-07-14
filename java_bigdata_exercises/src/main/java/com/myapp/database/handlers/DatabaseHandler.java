@@ -171,63 +171,65 @@ public class DatabaseHandler {
     }
 
 
-    public static void main(String[] args) {
-        DatabaseHandler dbHandler = new DatabaseHandler();
-        dbHandler.connect();
-        // comment this out for now, to prevent addt'l 'John Doe's until code amended
-//        dbHandler.addStudent("Johnny Eight", 36,
-//                "jgone@goodbye.com", "Johnny Gonny");
-//      dbHandler.addStudent("Eric Apple", 32, "eric.apple@phonefruit.com", "Computer Science");
+    // Moving the 'main()' method over into its own 'com.myapp'>>'Main' class
 
-        // Post 'addStudent()' method and/or the Database as it currently stands
-        System.out.println("==================");
-        System.out.println("====  START  ====");
-        System.out.println("** List of Current Students in Database **");
-        List<Student> students = dbHandler.getStudents();
-        for (Student student : students) {
-            System.out.println(student);
-        }
-        System.out.println("==============");
-        System.out.println();
-
-        // Calling / Checking the 'updateStudent()' method
-        dbHandler.updateStudent(7, "Jeanluc Hewlitt Packard", 42,
-                "newguy1@notarealemail.com", "Shipwide Analytics");
-        System.out.println("==============");
-        System.out.println("** List of Current Students--post-UPDATE--in Database **");
-        students = dbHandler.getStudents();
-        for (Student student : students) {
-            System.out.println(student);
-        }
-        System.out.println("==============");
-        System.out.println();
-
-        // Calling / Checking the 'updateStudent()' method
-        // Calling it again but with a dif / non-existing ID.
-        dbHandler.updateStudent(3, "Hunter Shazam", 28,
-                "hunters@themoviesemailsys.com", "Superhero Survival Skills");
-        System.out.println("==============");
-        System.out.println("** List of Current Students--post-UPDATE #2--in Database **");
-        students = dbHandler.getStudents();
-        for (Student student : students) {
-            System.out.println(student);
-        }
-        System.out.println();
-        dbHandler.updateStudentEmail(6, "jDynasty1@morenewemails.com");
-
-        // commented out for now, so Students don't continually get deleted.
-//        dbHandler.deleteStudent(8);
-        System.out.println("==============");
-        System.out.println("** List of Current Students after Updating "
-                + "a Student's Email &/or Deleting a Student **");
-        students = dbHandler.getStudents();
-        for (Student student : students) {
-            System.out.println(student);
-        }
-        System.out.println("=================");
-        System.out.println("==== THE END ====");
-        System.out.println();
-    }
+//    public static void main(String[] args) {
+//        DatabaseHandler dbHandler = new DatabaseHandler();
+//        dbHandler.connect();
+//        // comment this out for now, to prevent addt'l 'John Doe's until code amended
+////        dbHandler.addStudent("Johnny Eight", 36,
+////                "jgone@goodbye.com", "Johnny Gonny");
+////      dbHandler.addStudent("Eric Apple", 32, "eric.apple@phonefruit.com", "Computer Science");
+//
+//        // Post 'addStudent()' method and/or the Database as it currently stands
+//        System.out.println("==================");
+//        System.out.println("====  START  ====");
+//        System.out.println("** List of Current Students in Database **");
+//        List<Student> students = dbHandler.getStudents();
+//        for (Student student : students) {
+//            System.out.println(student);
+//        }
+//        System.out.println("==============");
+//        System.out.println();
+//
+//        // Calling / Checking the 'updateStudent()' method
+//        dbHandler.updateStudent(7, "Jeanluc Hewlitt Packard", 42,
+//                "newguy1@notarealemail.com", "Shipwide Analytics");
+//        System.out.println("==============");
+//        System.out.println("** List of Current Students--post-UPDATE--in Database **");
+//        students = dbHandler.getStudents();
+//        for (Student student : students) {
+//            System.out.println(student);
+//        }
+//        System.out.println("==============");
+//        System.out.println();
+//
+//        // Calling / Checking the 'updateStudent()' method
+//        // Calling it again but with a dif / non-existing ID.
+//        dbHandler.updateStudent(3, "Hunter Shazam", 28,
+//                "hunters@themoviesemailsys.com", "Superhero Survival Skills");
+//        System.out.println("==============");
+//        System.out.println("** List of Current Students--post-UPDATE #2--in Database **");
+//        students = dbHandler.getStudents();
+//        for (Student student : students) {
+//            System.out.println(student);
+//        }
+//        System.out.println();
+//        dbHandler.updateStudentEmail(6, "jDynasty1@morenewemails.com");
+//
+//        // commented out for now, so Students don't continually get deleted.
+////        dbHandler.deleteStudent(8);
+//        System.out.println("==============");
+//        System.out.println("** List of Current Students after Updating "
+//                + "a Student's Email &/or Deleting a Student **");
+//        students = dbHandler.getStudents();
+//        for (Student student : students) {
+//            System.out.println(student);
+//        }
+//        System.out.println("=================");
+//        System.out.println("==== THE END ====");
+//        System.out.println();
+//    }
 
 }
 
