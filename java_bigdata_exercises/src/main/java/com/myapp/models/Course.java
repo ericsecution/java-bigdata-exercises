@@ -15,8 +15,11 @@ public class Course {
     @Column(name = "instructor")
     private String instructor;
 
+    //////////////////////////////////////////////////
+    // Hibernate requires a no-argument constructor:
     public Course() {
     }
+    //////////////////////////////////////////////////
 
     public Course(String name, String instructor) {
         this.name = name;

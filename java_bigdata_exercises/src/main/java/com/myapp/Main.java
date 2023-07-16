@@ -9,13 +9,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.List;
 
@@ -28,67 +33,70 @@ public class Main {
         CourseDao courseDao = new CourseDao();
         List<Course> courses = courseDao.getAllCourses();
 
+        boolean isUserInfoEntered = false;
+
+
 
 
         if (studentDao.isDatabaseEmpty()) {
             runImportSqlScript();
+        } // close `if (studentDao.isDatabaseEmpty())` statement
 
+            System.out.println();
+            System.out.println("***********************************************");
+            System.out.println("** Welcome to the Student Management System! **");
+            System.out.println("** Would you like to enter your details now? **");
+            System.out.println("**                                           **");
+            System.out.println("** (Y)es / (N)o                              **");
+            System.out.println("***********************************************");
+            String userChoice = scanner.nextLine().toUpperCase();
 
-            System.out.println("Welcome to the Student Management System!");
-            System.out.println("Please enter your details.");
-
-            System.out.print("Enter your Full Name: ");
-            String name = scanner.nextLine();
-
-            int age = -1;
-            while (age == -1) {
-                System.out.print("Enter your current Age: ");
-                try {
-                    age = Integer.parseInt(scanner.nextLine());
-                } catch (NumberFormatException e) {
-                    logger.error("Invalid input. Please enter a valid number for your age.", e);
-                    System.out.println("Invalid input. Please enter a valid number for your age.");
-                }
+            Student currentUser = null;
+            if (userChoice.equals("Y")) {
+                currentUser = createStudentFromUserInput(courses, scanner);
+                isUserInfoEntered = true;
             }
 
-            System.out.print("Enter the Email that you'd like to use for this Course: ");
-            String email = scanner.nextLine();
-
-            // Show Course & Instructor List
-            System.out.println("Great, and there's no need to signup just yet if you're not ready to decide.");
-            System.out.println("However, let's have you select the course that you're most interested in: ");
-            displayCourseList(courses);
-            Course selectedCourse = selectCourse(courses, scanner);
-
-            // Get the course name from the selected course
-            String courseName = selectedCourse.getName();
-
-            // Pass the course name to the Student constructor
-            Student currentUser = new Student(name, age, email, courseName);
-
-
-
-            while (true) {
-
+            boolean running = true;
+            while (running) {
+                System.out.println();
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
+                System.out.println("Current date and time: " + now.format(formatter));
+                System.out.println("**********************************************");
+                System.out.println("*         Student Management System          *");
+                System.out.println("*                 MAIN MENU                  *");
+                System.out.println("**********************************************");
                 System.out.println("\nWhat would you like to do?");
-                System.out.println("(A)dd yourself to the class that you're interested in?");
-                System.out.println("(C)reate a new Student?");
-                System.out.println("(R)ead info on a current Student?");
-                System.out.println("(U)pdate a Students records?");
-                System.out.println("(D)elete a Student record completely?");
-                System.out.println("(E)xit");
+                System.out.println("--------------------------------------------"+
+                                    "-------------------------------------------");
+                System.out.printf("%-30s %-30s %-30s %n", "(A)dd Yourself",
+                        "(C)reate a new Student", "(R)ead info for a Student");
+                System.out.printf("%-30s %-30s %-30s %n", "(U)pdate a Student's records",
+                        "(D)elete a Student's records", "(S)how entire Course List");
+                System.out.printf("%-30s %n", "(V)iew Attending Students");
+                System.out.printf("%68s", "(E)xit");
+                System.out.println("--------------------------------------------"+
+                                    "-------------------------------------------");
+                System.out.print(">> ");
+
 
                 String choice = scanner.nextLine().toUpperCase();
-
+                // IntelliJ recommended using the 'enhanced switch statement'
+                // to both make it more concise and easier to read, and also
+                // to avoid any potential fall-through (as per Java 12 Docs).
                 switch (choice) {
-                    case "A":
+                    case "A" -> {
+                        // check if they've already entered in their info
+                        if (!isUserInfoEntered) {
+                            currentUser = createStudentFromUserInput(courses, scanner);
+                            isUserInfoEntered = true;
+                        }
                         // Code to add the current user's info
                         studentDao.saveStudent(currentUser);
                         System.out.println("You've been added to the Class!");
-
-
-                        break;
-                    case "C":
+                    }
+                    case "C" -> {
                         // Code to create a new student
                         System.out.println("Sounds like a plan! Let's get this Student's info entered in.");
                         System.out.println("What's their Full Name?");
@@ -109,15 +117,15 @@ public class Main {
                                 studentEmail, studentCourseName);
 
                         studentDao.saveStudent(addedStudent);
-                        break;
-                    case "R":
+                    }
+                    case "R" -> {
                         // Code to read info on a current student
                         System.out.println("Please enter the ID of the student that you want to view?");
                         int id = Integer.parseInt(scanner.nextLine());
                         Student student = studentDao.getStudent(id);
                         System.out.println(student);
-                        break;
-                    case "U":
+                    }
+                    case "U" -> {
                         // Code to update a student's records
                         System.out.println("Enter the ID of the student you want to update:");
                         int updateId = Integer.parseInt(scanner.nextLine());
@@ -137,25 +145,46 @@ public class Main {
                         Course updatedCourse = selectCourse(courses, scanner);
                         updateStudent.setCourse(updatedCourse.getName());
                         studentDao.updateStudent(updateStudent);
-                        break;
-                    case "D":
+                    }
+                    case "D" -> {
                         // Code to delete a student record completely
                         System.out.println("Enter the ID of the student you want to delete:");
+                        System.out.println("--------------------------------------------"+
+                                "-------------------------------------------");
+                        System.out.print(">> ");
                         int deleteId = Integer.parseInt(scanner.nextLine());
-                        studentDao.deleteStudent(deleteId);
-                        break;
-                    case "E":
-                        System.exit(0);
-                    default:
+                        Student exitingStudent = studentDao.getStudent(deleteId);
+                        String possibleDeletedStudent = studentDao.getStudent(deleteId).getFullName();
+                        System.out.print("Do you really want to Delete: ");
+                        System.out.print(possibleDeletedStudent + "from the SMS? (Y)es / (N)o");
+                        String deleteChoice = scanner.nextLine().toUpperCase();
+                        if (deleteChoice.equals("Y")) {
+                            studentDao.deleteStudent(deleteId);
+                            System.out.println(exitingStudent + " >> DELETED <<");
+                        }
+                    }
+                    case "S" -> displayCourseList(courses);
+                    case "V" -> studentDao.displayAllStudents();
+                    case "E" -> {
+                        System.out.println("Do you really want to Exit the entire "
+                                + "Student Management System? (Y)es / (N)o");
+                        String exitChoice = scanner.nextLine().toUpperCase();
+                        if (exitChoice.equals("Y")) {
+                            running = false;
+                        }
+                    }
+                    default -> {
                         System.out.println("Invalid choice. Please enter A (to add-in your info), "
                                 + "C, R, U, D, or E (to Exit).");
+                        logger.info("Invalid choice. Please enter A (to add-in your info), "
+                                + "C, R, U, D, or E (to Exit).");
+                    }
                 } // close `switch(choice)` statement
 
-            } // close `while(true)` loop
 
-        } // close `if (studentDao.isDatabaseEmpty())` statement
+            } // close `while(running)` loop
 
-        scanner.close();
+        scanner.close(); // close that scanner!
     } // close of my 'main' method
 
 
@@ -209,8 +238,11 @@ public class Main {
         displayCourseList(courses);
         Course selectedCourse = selectCourse(courses, scanner);
 
-        // Get the course name from the selected course
-        String courseName = selectedCourse.getName();
+        // Check that selectedCourse is not null before trying to get its name
+        String courseName = "";
+        if (selectedCourse != null) {
+            courseName = selectedCourse.getName();
+        }
 
         // Pass the course name to the Student constructor
         return new Student(name, age, email, courseName);
@@ -220,14 +252,15 @@ public class Main {
         // code to run the import.sql script
         try {
             // get the file's path
-            URL resource = Main.class.getClassLoader().getResource("import.sql");
-            if (resource == null) {
-                throw new FileNotFoundException("Could not find file: 'import.sql'.");
+            URL url = Main.class.getClassLoader().getResource("import.sql");
+            if (url == null) {
+                throw new FileNotFoundException("Could not find the file: 'import.sql'.");
             }
-            String path = resource.getPath();
+            Path resPath = Paths.get(url.toURI());
+            String sql = new String(Files.readAllBytes(resPath), "UTF8");
 
-            // read the file's content
-            String sql = Files.readString(Paths.get(path), StandardCharsets.UTF_8);
+            // log the sql commands
+            logger.info("SQL commands: " + sql);
 
             // Get connection and create a statement
             Connection connection = DriverManager.getConnection
@@ -238,12 +271,19 @@ public class Main {
             // Execute the SQL commands
             statement.executeUpdate(sql);
 
+            // log a message indicating that the SQL commands were executed
+            logger.info("SQL commands executed successfully.");
+
             // Close the statement and connection
             statement.close();
             connection.close();
-        } catch (Exception e) {
-            // Print out exception message
-            System.out.println("Error running the 'import.sql' script: " + e.getMessage());
+        } catch (SQLException e) {
+            logger.error("Database error: ", e);
+        } catch (IOException e) {
+            logger.error("File error: ", e);
+        } catch (URISyntaxException e) {
+            logger.error("URI Syntax error: ", e);
         }
     }
+
 }

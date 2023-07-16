@@ -8,7 +8,7 @@
         <property name="connection.driver_class">org.postgresql.Driver</property>
         <property name="connection.url">jdbc:postgresql://localhost:5432/universe_city</property>
         <property name="connection.username">postgres</property>
-        <property name="connection.password">•••••••••••</property>
+        <property name="connection.password">Elda1da7e0c</property>
 
         <!-- JDBC connection pool (use the built-in) -->
         <property name="connection.pool_size">1</property>
@@ -30,5 +30,6 @@
 
         <!-- Names the annotated entity class -->
         <mapping class="com.myapp.models.Student"/>
+        <mapping class="com.myapp.models.Course"/>
     </session-factory>
 </hibernate-configuration>

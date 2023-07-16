@@ -8,6 +8,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.util.List;
+
 public class StudentDao {
 
     private static final Logger logger = LogManager.getLogger(StudentDao.class);
@@ -25,12 +27,13 @@ public class StudentDao {
         // The SessionFactory is thread-safe and usually application-scoped, s
         // there's only a need to call to the Hibernate utility class one time.
 
-        // Opening up the conversation with a try/catch btwn my App and the "persistent store"
+        // Opening up the conversation with a try/catch btwn my App and the "persistent store"...
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            // aka the database. I'm creating a short-lived session object, in order to...
+            // ...aka the database =). I'm creating a short-lived session object, in order to...
 
-            // create a query object, in order to retrieve a persistent object from the db
+            // ...create a query object, in order to retrieve a persistent object from the db
+
             // testing out the case-insensitivity of HQL to make query easier to read.
             Query<Long> query = session.createQuery("select count(s.id) from Student s",
                     Long.class);
@@ -39,7 +42,7 @@ public class StudentDao {
             Long count = query.uniqueResult();
 
             // check if count < 0
-            if (count < 0) {
+            if (count > 0) {
                 isEmpty = false;
             }
 
@@ -159,4 +162,14 @@ public class StudentDao {
         }
         return student;
     }
+
+    public void displayAllStudents() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Student> students = session.createQuery("from Student", Student.class).list();
+            students.forEach(System.out::println);
+        } catch (Exception e) {
+            logger.error("An error occurred while trying to display all students.", e);
+        }
+    }
+
 }
