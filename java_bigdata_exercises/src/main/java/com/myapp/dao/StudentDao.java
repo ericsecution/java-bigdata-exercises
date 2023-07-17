@@ -63,12 +63,21 @@ public class StudentDao {
     } // close isDatabaseEmpty() method
 
 
+    // For 'save', 'update', and 'delete', IntelliJ recommends that I use the
+    // 'try-with-resources' (aka 'automatic resource management') statement. Hmm...
+
+    // Just a 'yellow' warning, but after researching it more... eh, ok. Makes sense.
+
+    // Reason: a 'resource' object must be closed after the program is done with it.
+    // So, these added-in try-with-resources statements ensure each resource is closed
+    // at the end of their statement, which is better. Plus, now there's no need to
+    // manually close my session with a 'finally', as they're closed in the 'try' block.
+
+    // Took me a few 'tries' but I 'finally' got the new block working correctly =)
     public void saveStudent(Student student) {
-        Session session = null;
         Transaction transaction = null;
 
-        try {
-            session = HibernateUtil.getSessionFactory().openSession();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
 
             // save the student object
@@ -80,20 +89,13 @@ public class StudentDao {
                 transaction.rollback();
             }
             logger.error("An error occurred while trying to save a student.", e);
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
-
     }
 
     public void updateStudent(Student student) {
-        Session session = null;
         Transaction transaction = null;
 
-        try {
-            session = HibernateUtil.getSessionFactory().openSession();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
 
             session.update(student);
@@ -104,19 +106,13 @@ public class StudentDao {
                 transaction.rollback();
             }
             logger.error("An error occurred while trying to update a student.", e);
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 
     public void deleteStudent(int id) {
-        Session session = null;
         Transaction transaction = null;
 
-        try {
-            session = HibernateUtil.getSessionFactory().openSession();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
 
             Student student = session.get(Student.class, id);
@@ -131,12 +127,9 @@ public class StudentDao {
                 transaction.rollback();
             }
             logger.error("An error occurred while trying to delete a student.", e);
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
+
 
     public Student getStudent(int id) {
         Session session = null;

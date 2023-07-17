@@ -43,12 +43,21 @@ public class Main {
         } // close `if (studentDao.isDatabaseEmpty())` statement
 
             System.out.println();
-            System.out.println("***********************************************");
-            System.out.println("** Welcome to the Student Management System! **");
-            System.out.println("** Would you like to enter your details now? **");
-            System.out.println("**                                           **");
-            System.out.println("** (Y)es / (N)o                              **");
-            System.out.println("***********************************************");
+            System.out.println("╔═══════════════════════════════════════════" +
+                                "══════════════════════════════════════════╗");
+            System.out.println("║                      Welcome to the Student Management System!"
+                              +"                      ║");
+            System.out.println("║                    » Would you like to enter your details now? «"
+                              +"                    ║");
+            System.out.println("║                                                               "
+                              +"                      ║");
+            System.out.println("║  (Y)es / (N)o                                                 "
+                              +"                      ║");
+            System.out.println("╚═══════════════════════════════════════════" +
+                                "══════════════════════════════════════════╝");
+            System.out.printf("%-30s %n", "↳");
+            System.out.printf("»»        ");
+
             String userChoice = scanner.nextLine().toUpperCase();
 
             Student currentUser = null;
@@ -63,10 +72,14 @@ public class Main {
                 LocalDateTime now = LocalDateTime.now();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
                 System.out.println("Current date and time: " + now.format(formatter));
-                System.out.println("**********************************************");
-                System.out.println("*         Student Management System          *");
-                System.out.println("*                 MAIN MENU                  *");
-                System.out.println("**********************************************");
+                System.out.println("╔═══════════════════════════════════════════" +
+                                    "══════════════════════════════════════════╗");
+                System.out.println("║                              Student Management System"+
+                                   "                              ║");
+                System.out.println("║                                       MAIN MENU"+
+                                   "                                     ║");
+                System.out.println("╚═══════════════════════════════════════════" +
+                                    "══════════════════════════════════════════╝");
                 System.out.println("\nWhat would you like to do?");
                 System.out.println("--------------------------------------------"+
                                     "-------------------------------------------");
@@ -74,14 +87,17 @@ public class Main {
                         "(C)reate a new Student", "(R)ead info for a Student");
                 System.out.printf("%-30s %-30s %-30s %n", "(U)pdate a Student's records",
                         "(D)elete a Student's records", "(S)how entire Course List");
-                System.out.printf("%-30s %n", "(V)iew Attending Students");
-                System.out.printf("%68s", "(E)xit");
+                System.out.printf("%-30s", "(V)iew Attending Students");
+                System.out.printf("%38s %n", "(E)xit");
                 System.out.println("--------------------------------------------"+
                                     "-------------------------------------------");
-                System.out.print(">> ");
-
+                System.out.printf("%-30s %-30s %-30s %n", "▫", "▪", "▫");
+                System.out.printf("%-30s %n", "↳");
+                System.out.printf("»»          ");
 
                 String choice = scanner.nextLine().toUpperCase();
+
+
                 // IntelliJ recommended using the 'enhanced switch statement'
                 // to both make it more concise and easier to read, and also
                 // to avoid any potential fall-through (as per Java 12 Docs).
@@ -156,7 +172,7 @@ public class Main {
                         Student exitingStudent = studentDao.getStudent(deleteId);
                         String possibleDeletedStudent = studentDao.getStudent(deleteId).getFullName();
                         System.out.print("Do you really want to Delete: ");
-                        System.out.print(possibleDeletedStudent + "from the SMS? (Y)es / (N)o");
+                        System.out.print(possibleDeletedStudent + " from the SMS? (Y)es / (N)o");
                         String deleteChoice = scanner.nextLine().toUpperCase();
                         if (deleteChoice.equals("Y")) {
                             studentDao.deleteStudent(deleteId);
@@ -215,38 +231,48 @@ public class Main {
     }
 
     private static Student createStudentFromUserInput(List<Course> courses, Scanner scanner) {
-        System.out.print("Enter your Full Name: ");
-        String name = scanner.nextLine();
+        String name = getValidatedInput("Enter your Full Name: ", scanner);
+        String ageInput = getValidatedInput("Enter your current Age: ", scanner, true);
+        int age = Integer.parseInt(ageInput);
+        String email = getValidatedInput("Enter the Email that you'd like to use for this Course: ", scanner);
 
-        int age = -1;
-        while (age == -1) {
-            System.out.print("Enter your current Age: ");
-            try {
-                age = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                logger.error("Invalid input. Please enter a valid number for your age.", e);
-                System.out.println("Invalid input. Please enter a valid number for your age.");
-            }
-        }
-
-        System.out.print("Enter the Email that you'd like to use for this Course: ");
-        String email = scanner.nextLine();
-
-        // Show Course & Instructor List
         System.out.println("Great, and there's no need to signup just yet if you're not ready to decide.");
         System.out.println("However, let's have you select the course that you're most interested in: ");
         displayCourseList(courses);
         Course selectedCourse = selectCourse(courses, scanner);
 
-        // Check that selectedCourse is not null before trying to get its name
-        String courseName = "";
-        if (selectedCourse != null) {
-            courseName = selectedCourse.getName();
-        }
+        String courseName = selectedCourse != null ? selectedCourse.getName() : "";
 
-        // Pass the course name to the Student constructor
         return new Student(name, age, email, courseName);
     }
+
+    private static String getValidatedInput(String prompt, Scanner scanner) {
+        return getValidatedInput(prompt, scanner, false);
+    }
+
+    private static String getValidatedInput(String prompt, Scanner scanner, boolean isNumeric) {
+        String input;
+        while (true) {
+            System.out.print(prompt);
+            input = scanner.nextLine();
+            if (isNumeric && !isNumeric(input)) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            } else {
+                break;
+            }
+        }
+        return input;
+    }
+
+    private static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 
     private static void runImportSqlScript() {
         // code to run the import.sql script
