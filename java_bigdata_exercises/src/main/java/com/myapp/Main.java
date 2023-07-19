@@ -47,11 +47,13 @@ public class Main {
                                 "══════════════════════════════════════════╗");
             System.out.println("║                      Welcome to the Student Management System!"
                               +"                      ║");
-            System.out.println("║                    » Would you like to enter your details now? «"
-                              +"                    ║");
             System.out.println("║                                                               "
                               +"                      ║");
-            System.out.println("║  (Y)es / (N)o                                                 "
+            System.out.println("║                    » Would you like to enter your details now? «"
+                +"                    ║");
+            System.out.println("║                                                               "
+                +"                      ║");
+            System.out.println("║                                    (Y)es / (N)o               "
                               +"                      ║");
             System.out.println("╚═══════════════════════════════════════════" +
                                 "══════════════════════════════════════════╝");
@@ -80,7 +82,11 @@ public class Main {
                                    "                                     ║");
                 System.out.println("╚═══════════════════════════════════════════" +
                                     "══════════════════════════════════════════╝");
-                System.out.println("\nWhat would you like to do?");
+                System.out.println();
+                System.out.println("────────────────────────────────────────────"+
+                        "───────────────────────────────────────────");
+                System.out.printf("%-30s %-30s %-30s %n", "▫", "▪", "▫");
+                System.out.println("What would you like to do?");
                 System.out.println("--------------------------------------------"+
                                     "-------------------------------------------");
                 System.out.printf("%-30s %-30s %-30s %n", "(A)dd Yourself",
@@ -92,8 +98,10 @@ public class Main {
                 System.out.println("--------------------------------------------"+
                                     "-------------------------------------------");
                 System.out.printf("%-30s %-30s %-30s %n", "▫", "▪", "▫");
-                System.out.printf("%-30s %n", "↳");
-                System.out.printf("»»          ");
+                System.out.println("────────────────────────────────────────────"+
+                        "───────────────────────────────────────────");
+                System.out.println("↳  ⇣");
+                System.out.println("»»          ");
 
                 String choice = scanner.nextLine().toUpperCase();
 
@@ -114,29 +122,43 @@ public class Main {
                     }
                     case "C" -> {
                         // Code to create a new student
+                        System.out.println("────────────────────────────────────────────"+
+                                "───────────────────────────────────────────");
                         System.out.println("Sounds like a plan! Let's get this Student's info entered in.");
                         System.out.println("What's their Full Name?");
-                        String studentName = scanner.nextLine();
+                        String fullName = scanner.nextLine();
+
                         System.out.println("What's their current Age?");
-                        int studentAge = Integer.parseInt(scanner.nextLine());
+                        int age = Integer.parseInt(scanner.nextLine());
+
                         System.out.println("What's the best Email to contact them at about this Course?");
-                        String studentEmail = scanner.nextLine();
+                        String email = scanner.nextLine();
 
+                        // Display the Courses again, in lieu of user's selection for an updatedCourse
                         displayCourseList(courses);
-                        Course studentCourse = selectCourse(courses, scanner);
+                        Course selectedCourse = selectCourse(courses, scanner);
 
-                        // Get the course name from the selected course
-                        String studentCourseName = studentCourse.getName();
+                        Student newStudent = new Student(fullName, age, email, selectedCourse.getName());
+                        studentDao.saveStudent(newStudent);
 
-                        // Pass the course name to the Student constructor
-                        Student addedStudent = new Student(studentName, studentAge,
-                                studentEmail, studentCourseName);
+                        // Display a success message
+                        System.out.printf("%-35s %-45s\n", "Full Name:", newStudent.getFullName());
+                        System.out.printf("%-35s %-45s\n", "Age:", newStudent.getAge());
+                        System.out.printf("%-35s %-45s\n", "Email:", newStudent.getEmail());
+                        System.out.printf("%-35s %-45s\n", "Course:", newStudent.getCourse());
 
-                        studentDao.saveStudent(addedStudent);
+                        System.out.println();
+                        System.out.println("The new student has been successfully created!");
+                        System.out.println("────────────────────────────────────────────"+
+                                "───────────────────────────────────────────");
                     }
+
                     case "R" -> {
                         // Code to read info on a current student
+                        System.out.println("════════════════════════════════════════════" +
+                                "═══════════════════════════════════════════");
                         System.out.println("Please enter the ID of the student that you want to view?");
+                        System.out.println("↳            ⇣");
                         int id = Integer.parseInt(scanner.nextLine());
                         Student student = studentDao.getStudent(id);
                         System.out.println(student);
@@ -146,22 +168,77 @@ public class Main {
                         System.out.println("Enter the ID of the student you want to update:");
                         int updateId = Integer.parseInt(scanner.nextLine());
                         Student updateStudent = studentDao.getStudent(updateId);
+                        System.out.println();
+                        System.out.println();
+                        System.out.println();
+                        System.out.println("════════════════════════════════════════════" +
+                                "═══════════════════════════════════════════");
+                        System.out.println("You've selected Student ID#: " + updateStudent.getId()
+                                +", " + updateStudent.getFullName()
+                                + ".\nIs this correct?  (Y)es / (N)o ?");
+                        System.out.println("↳");
+                        System.out.println("»»          ");
+                        String confirm = scanner.nextLine().toUpperCase();
+                        if (confirm.equals("Y")) {
+                            // Store the original details of the student
+                            String originalFullName = updateStudent.getFullName();
+                            int originalAge = updateStudent.getAge();
+                            String originalEmail = updateStudent.getEmail();
+                            String originalCourse = updateStudent.getCourse();
+                            System.out.println("════════════════════════════════════════════" +
+                                    "═══════════════════════════════════════════");
+                            System.out.println("What's their updated Full Name?");
+                            System.out.println("↳            ⇣");
+                            updateStudent.setFullName(scanner.nextLine());
 
-                        System.out.println("What's their updated Full Name?");
-                        updateStudent.setFullName(scanner.nextLine());
+                            System.out.println("What's their updated Age?");
+                            System.out.println("↳            ⇣");
+                            updateStudent.setAge(Integer.parseInt(scanner.nextLine()));
 
-                        System.out.println("What's their updated Age?");
-                        updateStudent.setAge(Integer.parseInt(scanner.nextLine()));
+                            System.out.println("What's their updated Email?");
+                            System.out.println("↳            ⇣");
+                            updateStudent.setEmail(scanner.nextLine());
 
-                        System.out.println("What's their updated Email?");
-                        updateStudent.setEmail(scanner.nextLine());
+                            // Display the Courses again, in lieu of user's selection for an updatedCourse
+                            System.out.println("════════════════════════════════════════════" +
+                                    "═══════════════════════════════════════════");
+                            displayCourseList(courses);
+                            Course updatedCourse = selectCourse(courses, scanner);
+                            updateStudent.setCourse(updatedCourse.getName());
+                            studentDao.updateStudent(updateStudent);
+                            System.out.println("════════════════════════════════════════════" +
+                                    "═══════════════════════════════════════════");
+                            // Display the changes
+                            System.out.println();
+                            System.out.println("You've updated ⇢ 'Student ID # : "
+                                    + updateStudent.getId() + ", " + originalFullName + "' ⇠");
+                            if (!originalFullName.equals(updateStudent.getFullName())) {
+                                System.out.printf("%-45s %-55s\n", "Previous Full Name: "
+                                        + originalFullName, "⇨ Updated Full Name: "
+                                        + updateStudent.getFullName() + " ⇦");
+                            }
+                            if (originalAge != updateStudent.getAge()) {
+                                System.out.printf("%-45s %-55s\n", "Previous Age: "
+                                        + originalAge, "⇨ Updated Age: "
+                                        + updateStudent.getAge() +" ⇦");
+                            }
+                            if (!originalEmail.equals(updateStudent.getEmail())) {
+                                System.out.printf("%-45s %-55s\n", "Previous Email: "
+                                        + originalEmail, "⇨ Updated Email: "
+                                        + updateStudent.getEmail() + " ⇦");
+                            }
+                            if (!originalCourse.equals(updateStudent.getCourse())) {
+                                System.out.printf("%-45s %-55s\n", "Previous Course: "
+                                        + originalCourse, "⇨ Updated Course: "
+                                        + updateStudent.getCourse() + " ⇦");
+                            }
+                            System.out.println("↳ All Set!");
+                            System.out.println("════════════════════════════════════════════" +
+                                    "═══════════════════════════════════════════");
 
-                        // Display the Courses again, in lieu of user's selection for an updatedCourse
-                        displayCourseList(courses);
-                        Course updatedCourse = selectCourse(courses, scanner);
-                        updateStudent.setCourse(updatedCourse.getName());
-                        studentDao.updateStudent(updateStudent);
+                        } // end 'if(confirm.equals("Y"))' statement
                     }
+
                     case "D" -> {
                         // Code to delete a student record completely
                         System.out.println("Enter the ID of the student you want to delete:");
@@ -170,16 +247,46 @@ public class Main {
                         System.out.print(">> ");
                         int deleteId = Integer.parseInt(scanner.nextLine());
                         Student exitingStudent = studentDao.getStudent(deleteId);
-                        String possibleDeletedStudent = studentDao.getStudent(deleteId).getFullName();
+                        String possibleDeletedStudent = exitingStudent.getFullName();
                         System.out.print("Do you really want to Delete: ");
-                        System.out.print(possibleDeletedStudent + " from the SMS? (Y)es / (N)o");
+                        System.out.print(possibleDeletedStudent + " from the SMS? (Y)es / (N)o"+"\n»       ");
                         String deleteChoice = scanner.nextLine().toUpperCase();
                         if (deleteChoice.equals("Y")) {
+                            String deletedOutStudent = exitingStudent.toString();
                             studentDao.deleteStudent(deleteId);
-                            System.out.println(exitingStudent + " >> DELETED <<");
+                            System.out.println(deletedOutStudent + " »» DELETED ««");
                         }
                     }
-                    case "S" -> displayCourseList(courses);
+                    case "S" -> {
+                        displayCourseList(courses);
+                        System.out.println("Would you like to:");
+                        System.out.println("(I)nclude Instructors with Courses List");
+                        System.out.println("(S)how Students in the Instructors with Courses List");
+                        System.out.println("(B)ack to Main Menu");
+                        System.out.print("Enter your choice: ");
+                        String subChoice = scanner.nextLine().toUpperCase();
+                        switch (subChoice) {
+                            case "I" -> {
+                                // Code to display courses with their instructors
+                                for (Course course : courses) {
+                                    System.out.println(course.getName() + " - Instructor: " + course.getInstructor());
+                                }
+                            }
+                            case "S" -> {
+                                // Code to show students in the instructors with courses list
+
+                                System.out.println("Students in the Instructors with Courses List:");
+                                studentDao.showAllStudentsCoursesAndInstructors();
+                            }
+                            case "B" -> {
+                                // Simply go back to the main menu
+                            }
+                            default -> {
+                                System.out.println("Invalid choice. Returning to the main menu.");
+                            }
+                        }
+                    }
+
                     case "V" -> studentDao.displayAllStudents();
                     case "E" -> {
                         System.out.println("Do you really want to Exit the entire "

@@ -1,12 +1,12 @@
 package com.myapp.models;
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
 @Table(name = "students")
 public class Student {
-    public Student() {
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,19 @@ public class Student {
     @Column(name = "course")
     private String course;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "registrations",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private Set<Course> courses = new HashSet<>();
+
+    //////////////////////////////////////////////////
+    // Hibernate requires a no-argument constructor:
+    public Student() {
+    }
+    //////////////////////////////////////////////////
     public Student(int id, String fullName, int age, String email, String course) {
         this.id = id;
         this.fullName = fullName;
@@ -73,12 +86,19 @@ public class Student {
         this.email = email;
     }
 
-    public String getCourse() {
-        return course;
+    public String getCourse() { return course; }
+
+    public void setCourse(String course) {this.course = course;}
+
+
+    public Set<Course> getCourses() {
+
+        return courses;
     }
 
-    public void setCourse(String course) {
-        this.course = course;
+    public void setCourses(Set<Course> courses) {
+
+        this.courses = courses;
     }
 
     @Override
